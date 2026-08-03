@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pré-Cadastro IPTV | Teste Grátis</title>
+  <meta name="description" content="Faça seu pré-cadastro e garanta seu teste gratuito de IPTV. Smart TV, Android, iPhone, TV Box, Tablet, Notebook e PC." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #06060f;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(99,102,241,0.5);
+      --primary: #6366f1;
+      --primary-glow: rgba(99,102,241,0.35);
+      --secondary: #a855f7;
+      --accent: #22d3ee;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius: 16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(168,85,247,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 60% 30%, rgba(34,211,238,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 400px; height: 400px; background: rgba(99,102,241,0.12); top: -100px; left: -100px; animation-delay: 0s; }
+    .orb-2 { width: 300px; height: 300px; background: rgba(168,85,247,0.1); bottom: -50px; right: -50px; animation-delay: -3s; }
+    .orb-3 { width: 200px; height: 200px; background: rgba(34,211,238,0.08); top: 50%; left: 50%; animation-delay: -5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* Grid pattern */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #818cf8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.5); }
+    }
+
+    .header h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 30%, #818cf8 70%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+
+    .header p {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 400;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 36px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 32px 64px rgba(0,0,0,0.4),
+        0 0 80px rgba(99,102,241,0.08);
+      animation: fadeUp 0.6s ease 0.3s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 18px;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px 16px 15px 48px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: rgba(99,102,241,0.06);
+    }
+
+    input[type="text"]:focus + .input-icon,
+    input[type="tel"]:focus + .input-icon {
+      color: var(--primary);
+    }
+
+    /* Phone row */
+    .phone-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .phone-prefix {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .flag { font-size: 18px; }
+
+    .phone-row input[type="tel"] {
+      padding-left: 16px;
+      flex: 1;
+    }
+
+    /* Device grid */
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .device-option {
+      position: relative;
+    }
+
+    .device-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .device-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      user-select: none;
+    }
+
+    .device-label:hover {
+      border-color: rgba(99,102,241,0.4);
+      background: rgba(99,102,241,0.08);
+      transform: translateY(-2px);
+    }
+
+    .device-option input[type="radio"]:checked + .device-label {
+      border-color: var(--primary);
+      background: rgba(99,102,241,0.15);
+      box-shadow: 0 0 0 1px var(--primary), 0 0 20px rgba(99,102,241,0.2);
+    }
+
+    .device-icon { font-size: 26px; }
+
+    .device-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.03em;
+    }
+
+    /* Submit button */
+    .btn {
+      width: 100%;
+      padding: 17px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      letter-spacing: 0.02em;
+      background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(37,211,102,0.3), 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(37,211,102,0.4), 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .btn:hover::before { opacity: 1; }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-icon { font-size: 20px; }
+
+    /* Error */
+    .error-msg {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 6px;
+      display: none;
+    }
+
+    .form-group.has-error input,
+    .form-group.has-error .phone-row input {
+      border-color: var(--error);
+    }
+
+    .form-group.has-error .error-msg { display: block; }
+
+    .device-error {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .device-error.show { display: block; }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      animation: fadeUp 0.6s ease 0.5s both;
+    }
+
+    .footer a {
+      color: #818cf8;
+      text-decoration: none;
+    }
+
+    /* Shimmer on card */
+    .card-shine {
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      transform: skewX(-20deg);
+      animation: shine 5s ease infinite;
+      pointer-events: none;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    @keyframes shine {
+      0% { left: -100%; }
+      40%, 100% { left: 200%; }
+    }
+
+    .card-wrap { position: relative; overflow: hidden; border-radius: 24px; }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px; }
+      .device-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Teste Gratuito Disponível
+      </div>
+      <h1>Pré-Cadastro IPTV</h1>
+      <p>Preencha e garanta seu teste agora mesmo</p>
+    </div>
+
+    <div class="card-wrap">
+      <div class="card">
+        <div class="card-shine"></div>
+
+        <form id="preRegForm" novalidate>
+
+          <!-- Nome -->
+          <div class="form-group" id="group-nome">
+            <label for="nome">Nome Completo</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="nome"
+                name="nome"
+                placeholder="Digite seu nome completo"
+                autocomplete="name"
+                maxlength="80"
+              />
+              <span class="input-icon">👤</span>
+            </div>
+            <span class="error-msg">Informe seu nome completo.</span>
+          </div>
+
+          <!-- WhatsApp -->
+          <div class="form-group" id="group-whats">
+            <label for="whatsapp">WhatsApp</label>
+            <div class="phone-row">
+              <div class="phone-prefix">
+                <span class="flag">🇧🇷</span>
+                <span>+55</span>
+              </div>
+              <input
+                type="tel"
+                id="whatsapp"
+                name="whatsapp"
+                placeholder="(DDD) 9 0000-0000"
+                maxlength="15"
+                inputmode="numeric"
+              />
+            </div>
+            <span class="error-msg">Informe um número de WhatsApp válido (10 ou 11 dígitos).</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Dispositivo -->
+          <div class="form-group" id="group-device">
+            <label>Tipo de Aparelho para Teste</label>
+            <div class="device-grid">
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-smarttv" value="Smart TV" />
+                <label class="device-label" for="dev-smarttv">
+                  <span class="device-icon">📺</span>
+                  <span class="device-name">Smart TV</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-android" value="Android" />
+                <label class="device-label" for="dev-android">
+                  <span class="device-icon">🤖</span>
+                  <span class="device-name">Android</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-iphone" value="iPhone" />
+                <label class="device-label" for="dev-iphone">
+                  <span class="device-icon">🍎</span>
+                  <span class="device-name">iPhone</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-tvbox" value="TV Box" />
+                <label class="device-label" for="dev-tvbox">
+                  <span class="device-icon">📦</span>
+                  <span class="device-name">TV Box</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-tablet" value="Tablet" />
+                <label class="device-label" for="dev-tablet">
+                  <span class="device-icon">📱</span>
+                  <span class="device-name">Tablet</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-notebook" value="Notebook" />
+                <label class="device-label" for="dev-notebook">
+                  <span class="device-icon">💻</span>
+                  <span class="device-name">Notebook</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-pc" value="PC" />
+                <label class="device-label" for="dev-pc">
+                  <span class="device-icon">🖥️</span>
+                  <span class="device-name">PC</span>
+                </label>
+              </div>
+
+              <div class="device-option">
+                <input type="radio" name="device" id="dev-outro" value="Outro" />
+                <label class="device-label" for="dev-outro">
+                  <span class="device-icon">📡</span>
+                  <span class="device-name">Outro</span>
+                </label>
+              </div>
+
+            </div>
+            <span class="device-error" id="device-error">Selecione o tipo de aparelho.</span>
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">
+            <div class="btn-content">
+              <span class="btn-icon">💬</span>
+              <span>Solicitar Teste pelo WhatsApp</span>
+            </div>
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+    <p class="footer">
+      Seus dados são usados apenas para contato. &nbsp;|&nbsp;
+      <a href="#">Privacidade</a>
+    </p>
+  </div>
+
+  <script>
+    const WHATSAPP_NUMBER = '5574981165246';
+
+    // Mask phone input
+    const phoneInput = document.getElementById('whatsapp');
+    phoneInput.addEventListener('input', function () {
+      let v = this.value.replace(/\D/g, '').slice(0, 11);
+      if (v.length > 2 && v.length <= 6) {
+        v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+      } else if (v.length > 6 && v.length <= 10) {
+        v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+      } else if (v.length > 10) {
+        v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+      } else if (v.length > 2) {
+        v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+      }
+      this.value = v;
+    });
+
+    // Validation
+    function validate() {
+      let valid = true;
+
+      const nome = document.getElementById('nome').value.trim();
+      const groupNome = document.getElementById('group-nome');
+      if (nome.split(' ').filter(Boolean).length < 2) {
+        groupNome.classList.add('has-error');
+        valid = false;
+      } else {
+        groupNome.classList.remove('has-error');
+      }
+
+      const phone = document.getElementById('whatsapp').value.replace(/\D/g, '');
+      const groupWhats = document.getElementById('group-whats');
+      if (phone.length < 10 || phone.length > 11) {
+        groupWhats.classList.add('has-error');
+        valid = false;
+      } else {
+        groupWhats.classList.remove('has-error');
+      }
+
+      const device = document.querySelector('input[name="device"]:checked');
+      const deviceError = document.getElementById('device-error');
+      if (!device) {
+        deviceError.classList.add('show');
+        valid = false;
+      } else {
+        deviceError.classList.remove('show');
+      }
+
+      return valid;
+    }
+
+    document.getElementById('preRegForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validate()) return;
+
+      const nome = document.getElementById('nome').value.trim();
+      const phone = document.getElementById('whatsapp').value.replace(/\D/g, '');
+      const device = document.querySelector('input[name="device"]:checked').value;
+
+      const msg = [
+        `Olá! Gostaria de solicitar um *teste de IPTV*.`,
+        ``,
+        `👤 *Nome:* ${nome}`,
+        `📱 *WhatsApp:* +55 ${document.getElementById('whatsapp').value.trim()}`,
+        `📺 *Aparelho:* ${device}`,
+        ``,
+        `Aguardo seu retorno!`
+      ].join('\n');
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = `<div class="btn-content"><span class="btn-icon">✅</span><span>Redirecionando...</span></div>`;
+      btn.style.opacity = '0.8';
+      btn.disabled = true;
+
+      setTimeout(() => { window.open(url, '_blank'); btn.innerHTML = `<div class="btn-content"><span class="btn-icon">💬</span><span>Solicitar Teste pelo WhatsApp</span></div>`; btn.style.opacity = ''; btn.disabled = false; }, 800);
+    });
+
+    // Live clear error on input
+    document.getElementById('nome').addEventListener('input', () => document.getElementById('group-nome').classList.remove('has-error'));
+    phoneInput.addEventListener('input', () => document.getElementById('group-whats').classList.remove('has-error'));
+    document.querySelectorAll('input[name="device"]').forEach(r => r.addEventListener('change', () => document.getElementById('device-error').classList.remove('show')));
+  </script>
+</body>
+</html>
