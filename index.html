@@ -637,14 +637,40 @@
       const phone = document.getElementById('whatsapp').value.replace(/\D/g, '');
       const device = document.querySelector('input[name="device"]:checked').value;
 
+      const deviceLinks = {
+        'Android':  'https://aftv.news/8914981',
+        'TV Box':   'https://aftv.news/8914981',
+        'Tablet':   'https://aftv.news/8914981',
+        'iPhone':   'https://go.aftvnews.com/1837742',
+        'Notebook': 'https://p2playerweb.com',
+        'PC':       'https://p2playerweb.com',
+      };
+
+      const waitDevices = ['Smart TV', 'Outro'];
+
+      let extraLines = [];
+      if (deviceLinks[device]) {
+        extraLines = [
+          ``,
+          `📲 *Instale o app pelo link abaixo e me avise quando estiver pronto:*`,
+          `👉 ${deviceLinks[device]}`,
+          ``,
+          `Assim que instalar, me avise aqui para eu enviar o acesso! 😊`
+        ];
+      } else if (waitDevices.includes(device)) {
+        extraLines = [
+          ``,
+          `⏳ Aguarde, em breve entrarei em contato com as instruções para o seu aparelho.`
+        ];
+      }
+
       const msg = [
         `Olá! Gostaria de solicitar um *teste de IPTV*.`,
         ``,
         `👤 *Nome:* ${nome}`,
         `📱 *WhatsApp:* +55 ${document.getElementById('whatsapp').value.trim()}`,
         `📺 *Aparelho:* ${device}`,
-        ``,
-        `Aguardo seu retorno!`
+        ...extraLines
       ].join('\n');
 
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
