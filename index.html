@@ -298,7 +298,16 @@
       box-shadow: 0 0 0 1px var(--primary), 0 0 20px rgba(99,102,241,0.2);
     }
 
-    .device-icon { font-size: 26px; }
+    .device-icon {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+      transition: transform 0.2s ease;
+    }
+    .device-label:hover .device-icon { transform: scale(1.12) translateY(-2px); }
+    .device-option input[type="radio"]:checked + .device-label .device-icon { transform: scale(1.08); }
 
     .device-name {
       font-size: 11.5px;
@@ -494,7 +503,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-smarttv" value="Smart TV" />
                 <label class="device-label" for="dev-smarttv">
-                  <span class="device-icon">📺</span>
+                  <img class="device-icon" src="icons/smarttv.jpg" alt="Smart TV" />
                   <span class="device-name">Smart TV</span>
                 </label>
               </div>
@@ -502,7 +511,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-android" value="Android" />
                 <label class="device-label" for="dev-android">
-                  <span class="device-icon">🤖</span>
+                  <img class="device-icon" src="icons/android.jpg" alt="Android" />
                   <span class="device-name">Android</span>
                 </label>
               </div>
@@ -510,7 +519,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-iphone" value="iPhone" />
                 <label class="device-label" for="dev-iphone">
-                  <span class="device-icon">🍎</span>
+                  <img class="device-icon" src="icons/iphone.jpg" alt="iPhone" />
                   <span class="device-name">iPhone</span>
                 </label>
               </div>
@@ -518,7 +527,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-tvbox" value="TV Box" />
                 <label class="device-label" for="dev-tvbox">
-                  <span class="device-icon">📦</span>
+                  <img class="device-icon" src="icons/tvbox.jpg" alt="TV Box" />
                   <span class="device-name">TV Box</span>
                 </label>
               </div>
@@ -526,7 +535,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-tablet" value="Tablet" />
                 <label class="device-label" for="dev-tablet">
-                  <span class="device-icon">📱</span>
+                  <img class="device-icon" src="icons/tablet.jpg" alt="Tablet" />
                   <span class="device-name">Tablet</span>
                 </label>
               </div>
@@ -534,7 +543,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-notebook" value="Notebook" />
                 <label class="device-label" for="dev-notebook">
-                  <span class="device-icon">💻</span>
+                  <img class="device-icon" src="icons/notebook.jpg" alt="Notebook" />
                   <span class="device-name">Notebook</span>
                 </label>
               </div>
@@ -542,7 +551,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-pc" value="PC" />
                 <label class="device-label" for="dev-pc">
-                  <span class="device-icon">🖥️</span>
+                  <img class="device-icon" src="icons/pc.jpg" alt="PC" />
                   <span class="device-name">PC</span>
                 </label>
               </div>
@@ -550,7 +559,7 @@
               <div class="device-option">
                 <input type="radio" name="device" id="dev-outro" value="Outro" />
                 <label class="device-label" for="dev-outro">
-                  <span class="device-icon">📡</span>
+                  <img class="device-icon" src="icons/outro.jpg" alt="Outro" />
                   <span class="device-name">Outro</span>
                 </label>
               </div>
