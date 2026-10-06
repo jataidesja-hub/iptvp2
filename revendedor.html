@@ -118,8 +118,26 @@
       <button class="btn" onclick="copiarLink()">Copiar Link</button>
     </div>
     
+    <div class="card" style="text-align: left;">
+      <h3 style="margin-bottom: 10px; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Suas Indicações</h3>
+      <div id="dash-indicacoes" style="max-height: 200px; overflow-y: auto;">
+        <!-- Preenchido via JS -->
+        <p style="color: var(--muted); font-size: 14px; text-align: center;">Nenhum cliente ainda.</p>
+      </div>
+    </div>
+    
     <div class="toggle-link" onclick="sair()">Sair da Conta</div>
   </div>
+
+  <style>
+    .ind-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ind-nome { font-weight: bold; font-size: 14px; }
+    .ind-data { font-size: 11px; color: var(--muted); }
+    .ind-status { font-size: 12px; font-weight: bold; padding: 3px 8px; border-radius: 4px; }
+    .st-teste { background: rgba(99,102,241,0.2); color: #818cf8; }
+    .st-final { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    .st-compra { background: rgba(16,185,129,0.2); color: #34d399; }
+  </style>
 
   <script>
     // ESTA URL SERÁ SUBSTITUÍDA PELO SEU GOOGLE APPS SCRIPT DEPOIS
@@ -228,6 +246,31 @@
       // O link de indicação deve mandar para a página inicial (raiz do site)
       const link = `${window.location.origin}/?ref=${currentUser.user}`;
       document.getElementById('dash-link').innerText = link;
+      
+      const boxInd = document.getElementById('dash-indicacoes');
+      if (currentUser.indicacoes && currentUser.indicacoes.length > 0) {
+        boxInd.innerHTML = '';
+        currentUser.indicacoes.forEach(ind => {
+          let stClass = '';
+          if(ind.status === 'Em teste') stClass = 'st-teste';
+          else if(ind.status === 'Teste Finalizado') stClass = 'st-final';
+          else if(ind.status === 'Compra Realizada') stClass = 'st-compra';
+          
+          boxInd.innerHTML += `
+            <div class="ind-item">
+              <div>
+                <div class="ind-nome">${ind.cliente}</div>
+                <div class="ind-data">${ind.data}</div>
+              </div>
+              <div>
+                <span class="ind-status ${stClass}">${ind.status}</span>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        boxInd.innerHTML = '<p style="color: var(--muted); font-size: 14px; text-align: center;">Nenhum cliente ainda.</p>';
+      }
     }
 
     function copiarLink() {

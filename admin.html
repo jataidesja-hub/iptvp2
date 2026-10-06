@@ -81,8 +81,7 @@
             <th>Revendedor</th>
             <th>Cliente</th>
             <th>Data</th>
-            <th>Status</th>
-            <th>Ação</th>
+            <th>Status (Alterar)</th>
           </tr>
         </thead>
         <tbody id="tabela-indicacoes">
@@ -137,13 +136,18 @@
                 <td>${item.revendedor}</td>
                 <td>${item.cliente}</td>
                 <td>${item.data}</td>
-                <td><span class="status-badge ${statusClass}">${item.status}</span></td>
-                <td><button class="btn" style="padding: 6px; font-size: 12px; width:auto;" onclick="alert('Funcionalidade de edição em breve')">Editar</button></td>
+                <td>
+                  <select class="status-badge ${statusClass}" style="margin: 0; padding: 4px; border: none; cursor: pointer; border-radius: 4px; outline: none;" onchange="mudarStatus(${item.linha}, this.value)">
+                    <option value="Em teste" ${item.status === 'Em teste' ? 'selected' : ''}>Em teste</option>
+                    <option value="Teste Finalizado" ${item.status === 'Teste Finalizado' ? 'selected' : ''}>Teste Finalizado</option>
+                    <option value="Compra Realizada" ${item.status === 'Compra Realizada' ? 'selected' : ''}>Compra Realizada</option>
+                  </select>
+                </td>
               </tr>
             `;
           });
         } else {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted);">Nenhuma indicação ainda.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--muted);">Nenhuma indicação ainda.</td></tr>';
         }
 
         // Popular Revendedores
@@ -159,6 +163,23 @@
 
       } catch(e) {
         console.log("Aguardando configuração da API.", e);
+      }
+    }
+
+    async function mudarStatus(linha, novoStatus) {
+      try {
+        const res = await fetch(WEBAPP_URL + "?action=updateStatus", {
+          method: "POST",
+          body: JSON.stringify({ linha: linha, status: novoStatus })
+        });
+        const data = await res.json();
+        if(data.success) {
+          carregarDados(); // Recarrega para atualizar a cor
+        } else {
+          alert("Erro ao atualizar status.");
+        }
+      } catch(e) {
+        alert("Erro de conexão ao atualizar status.");
       }
     }
 
