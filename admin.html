@@ -113,12 +113,35 @@
     }
 
     async function carregarDados() {
-      // Quando a planilha estiver pronta, essa função vai baixar as indicações.
       try {
-        const res = await fetch(WEBAPP_URL + "?action=getAdminData");
-        // logica de popular tabela...
+        const res = await fetch(WEBAPP_URL + "?action=getAdminData", { method: "POST", body: "{}" });
+        const data = await res.json();
+        
+        const tbody = document.getElementById('tabela-indicacoes');
+        tbody.innerHTML = '';
+        
+        if(data.success && data.data.length > 0) {
+          data.data.forEach(item => {
+            let statusClass = '';
+            if(item.status === 'Em teste') statusClass = 'st-teste';
+            else if(item.status === 'Teste Finalizado') statusClass = 'st-final';
+            else if(item.status === 'Compra Realizada') statusClass = 'st-compra';
+
+            tbody.innerHTML += `
+              <tr>
+                <td>${item.revendedor}</td>
+                <td>${item.cliente}</td>
+                <td>${item.data}</td>
+                <td><span class="status-badge ${statusClass}">${item.status}</span></td>
+                <td><button class="btn" style="padding: 6px; font-size: 12px; width:auto;" onclick="alert('Funcionalidade de edição em breve')">Editar</button></td>
+              </tr>
+            `;
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted);">Nenhuma indicação ainda.</td></tr>';
+        }
       } catch(e) {
-        console.log("Aguardando configuração da API.");
+        console.log("Aguardando configuração da API.", e);
       }
     }
 
