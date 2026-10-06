@@ -34,6 +34,9 @@
     
     .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
     .add-form input, .add-form select, .add-form button { margin-bottom: 0; }
+    
+    /* Corrige a cor de fundo das opções do select */
+    select option { background: var(--bg); color: var(--text); }
   </style>
 </head>
 <body>
@@ -57,7 +60,9 @@
       <h2>Nova Indicação (Lançamento Manual)</h2>
       <p style="color:var(--muted); font-size:13px; margin-bottom: 15px;">Associe um cliente a um revendedor para gerar comissão.</p>
       <div class="add-form">
-        <input type="text" id="add-revendedor" placeholder="Usuário do Revendedor" />
+        <select id="add-revendedor">
+          <option value="">Carregando Revendedores...</option>
+        </select>
         <input type="text" id="add-cliente" placeholder="Nome do Cliente" />
         <select id="add-status">
           <option value="Em teste">Em teste</option>
@@ -140,6 +145,18 @@
         } else {
           tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted);">Nenhuma indicação ainda.</td></tr>';
         }
+
+        // Popular Revendedores
+        const revSelect = document.getElementById('add-revendedor');
+        if(data.revendedores && data.revendedores.length > 0) {
+          revSelect.innerHTML = '<option value="">Selecione o Revendedor...</option>';
+          data.revendedores.forEach(r => {
+            revSelect.innerHTML += `<option value="${r}">${r}</option>`;
+          });
+        } else {
+          revSelect.innerHTML = '<option value="">Nenhum revendedor cadastrado</option>';
+        }
+
       } catch(e) {
         console.log("Aguardando configuração da API.", e);
       }
@@ -158,6 +175,7 @@
         });
         const data = await res.json();
         alert(data.message);
+        if(data.success) carregarDados(); // Recarrega a tabela
       } catch(e) {
         alert("A integração com o Sheets não está ativa ainda.");
       }
