@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Revendedor | IPTV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #06060f;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --primary: #6366f1;
+      --secondary: #a855f7;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+      backdrop-filter: blur(20px);
+    }
+    h1 { font-size: 28px; margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    input {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 15px; color: var(--text); outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+    .btn {
+      width: 100%; padding: 15px; border: none; border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white; font-weight: bold; cursor: pointer; font-size: 16px;
+      margin-top: 10px;
+    }
+    .btn-success { background: linear-gradient(135deg, #25d366, #128c7e); }
+    .toggle-link {
+      text-align: center; margin-top: 20px; color: var(--primary);
+      cursor: pointer; font-size: 14px;
+    }
+    /* Painel Logado */
+    #dashboard { display: none; }
+    .card {
+      background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center;
+    }
+    .balance { font-size: 36px; font-weight: bold; color: var(--success); margin: 10px 0; }
+    .link-box {
+      background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px;
+      font-family: monospace; color: var(--accent); margin-bottom: 10px;
+      word-break: break-all;
+    }
+    .loading { text-align: center; display: none; color: var(--muted); margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN / CADASTRO -->
+  <div class="container" id="auth-container">
+    <h1 id="auth-title">Login Revendedor</h1>
+    
+    <div id="login-form">
+      <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="login-user" placeholder="Seu usuário" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-pass" placeholder="Sua senha" />
+      </div>
+      <button class="btn" onclick="fazerLogin()">Entrar</button>
+      <div class="toggle-link" onclick="toggleAuth()">Não tem conta? Cadastre-se</div>
+    </div>
+
+    <div id="register-form" style="display: none;">
+      <div class="form-group"><label>Nome Completo</label><input type="text" id="reg-nome" /></div>
+      <div class="form-group"><label>Usuário (Login)</label><input type="text" id="reg-user" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="reg-pass" /></div>
+      <div class="form-group"><label>WhatsApp</label><input type="text" id="reg-whats" placeholder="(DDD) 90000-0000" /></div>
+      <div class="form-group"><label>Chave PIX</label><input type="text" id="reg-pix" /></div>
+      <button class="btn" onclick="fazerCadastro()">Criar Conta</button>
+      <div class="toggle-link" onclick="toggleAuth()">Já tem conta? Faça Login</div>
+    </div>
+    
+    <div class="loading" id="auth-loading">Aguarde...</div>
+  </div>
+
+  <!-- TELA DO PAINEL (Logado) -->
+  <div class="container" id="dashboard">
+    <h1>Olá, <span id="dash-nome">Revendedor</span>!</h1>
+    
+    <div class="card">
+      <p>Seu Saldo Disponível</p>
+      <div class="balance" id="dash-saldo">R$ 0,00</div>
+      <button class="btn btn-success" onclick="solicitarSaque()">💰 Solicitar Saque</button>
+    </div>
+
+    <div class="card">
+      <p>Seu link exclusivo para clientes:</p>
+      <div class="link-box" id="dash-link">carregando...</div>
+      <button class="btn" onclick="copiarLink()">Copiar Link</button>
+    </div>
+    
+    <div class="toggle-link" onclick="sair()">Sair da Conta</div>
+  </div>
+
+  <script>
+    // ESTA URL SERÁ SUBSTITUÍDA PELO SEU GOOGLE APPS SCRIPT DEPOIS
+    const WEBAPP_URL = "SUA_URL_DO_APPS_SCRIPT_AQUI"; 
+    const NUMERO_ADMIN = "5574981165246";
+
+    let currentUser = null;
+
+    function toggleAuth() {
+      const login = document.getElementById('login-form');
+      const reg = document.getElementById('register-form');
+      const title = document.getElementById('auth-title');
+      if (login.style.display === 'none') {
+        login.style.display = 'block'; reg.style.display = 'none'; title.innerText = 'Login Revendedor';
+      } else {
+        login.style.display = 'none'; reg.style.display = 'block'; title.innerText = 'Cadastro';
+      }
+    }
+
+    async function fazerCadastro() {
+      const nome = document.getElementById('reg-nome').value;
+      const user = document.getElementById('reg-user').value;
+      const pass = document.getElementById('reg-pass').value;
+      const whats = document.getElementById('reg-whats').value;
+      const pix = document.getElementById('reg-pix').value;
+
+      if(!nome || !user || !pass || !pix) return alert("Preencha todos os campos!");
+      
+      document.getElementById('auth-loading').style.display = 'block';
+      
+      // Chamada para o Google Sheets (ainda vamos configurar)
+      try {
+        const res = await fetch(WEBAPP_URL + "?action=register", {
+          method: "POST",
+          body: JSON.stringify({ nome, user, pass, whats, pix })
+        });
+        const data = await res.json();
+        if(data.success) {
+          alert("Cadastro realizado com sucesso! Faça login.");
+          toggleAuth();
+        } else {
+          alert("Erro: " + data.message);
+        }
+      } catch (e) {
+        alert("A integração com a planilha ainda precisa ser configurada!");
+      }
+      document.getElementById('auth-loading').style.display = 'none';
+    }
+
+    async function fazerLogin() {
+      const user = document.getElementById('login-user').value;
+      const pass = document.getElementById('login-pass').value;
+      if(!user || !pass) return alert("Preencha usuário e senha!");
+
+      document.getElementById('auth-loading').style.display = 'block';
+
+      try {
+        const res = await fetch(WEBAPP_URL + "?action=login", {
+          method: "POST", body: JSON.stringify({ user, pass })
+        });
+        const data = await res.json();
+        if(data.success) {
+          currentUser = data.userData;
+          abrirPainel();
+        } else {
+          alert("Credenciais incorretas!");
+        }
+      } catch (e) {
+        alert("A integração com a planilha ainda precisa ser configurada!");
+        // MOCK PARA TESTE VISUAL ENQUANTO NÃO TEM PLANILHA:
+        currentUser = { nome: "Teste", user: user, saldo: 15.00, pix: "1234" };
+        abrirPainel();
+      }
+      document.getElementById('auth-loading').style.display = 'none';
+    }
+
+    function abrirPainel() {
+      document.getElementById('auth-container').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      
+      document.getElementById('dash-nome').innerText = currentUser.nome;
+      document.getElementById('dash-saldo').innerText = `R$ ${currentUser.saldo.toFixed(2).replace('.', ',')}`;
+      
+      const link = `${window.location.origin}${window.location.pathname.replace('revendedor.html', 'index.html')}?ref=${currentUser.user}`;
+      document.getElementById('dash-link').innerText = link;
+    }
+
+    function copiarLink() {
+      const link = document.getElementById('dash-link').innerText;
+      navigator.clipboard.writeText(link);
+      alert("Link copiado para enviar aos clientes!");
+    }
+
+    function solicitarSaque() {
+      if(currentUser.saldo <= 0) return alert("Você não possui saldo para saque.");
+      
+      const msg = `Olá! Sou o revendedor *${currentUser.nome}*.\nGostaria de solicitar meu saque das indicações.\n\n💰 *Valor:* R$ ${currentUser.saldo.toFixed(2).replace('.', ',')}\n🔑 *Chave PIX:* ${currentUser.pix}`;
+      const url = `https://wa.me/${NUMERO_ADMIN}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    function sair() {
+      currentUser = null;
+      document.getElementById('auth-container').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

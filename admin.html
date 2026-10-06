@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | IPTV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #06060f; --surface: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.08);
+      --primary: #6366f1; --secondary: #a855f7; --text: #f1f5f9; --muted: #94a3b8;
+      --success: #10b981; --warning: #f59e0b; --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+    
+    .login-container { max-width: 400px; margin: 100px auto; background: var(--surface); padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); }
+    h1 { text-align: center; margin-bottom: 20px; }
+    input, select { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); margin-bottom: 15px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; cursor: pointer; font-weight: bold; }
+    
+    #admin-panel { display: none; max-width: 1000px; margin: 0 auto; }
+    .header-panel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); }
+    
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .st-teste { background: rgba(99,102,241,0.2); color: #818cf8; }
+    .st-final { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    .st-compra { background: rgba(16,185,129,0.2); color: #34d399; }
+    
+    .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
+    .add-form input, .add-form select, .add-form button { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN ADMIN -->
+  <div class="login-container" id="login-admin">
+    <h1>Administração</h1>
+    <input type="text" id="admin-user" placeholder="Usuário" />
+    <input type="password" id="admin-pass" placeholder="Senha" />
+    <button class="btn" onclick="loginAdmin()">Acessar</button>
+  </div>
+
+  <!-- PAINEL ADMIN -->
+  <div id="admin-panel">
+    <div class="header-panel">
+      <h1>Painel Geral</h1>
+      <button class="btn" style="width: auto; background: #ef4444;" onclick="sairAdmin()">Sair</button>
+    </div>
+
+    <div class="card">
+      <h2>Nova Indicação (Lançamento Manual)</h2>
+      <p style="color:var(--muted); font-size:13px; margin-bottom: 15px;">Associe um cliente a um revendedor para gerar comissão.</p>
+      <div class="add-form">
+        <input type="text" id="add-revendedor" placeholder="Usuário do Revendedor" />
+        <input type="text" id="add-cliente" placeholder="Nome do Cliente" />
+        <select id="add-status">
+          <option value="Em teste">Em teste</option>
+          <option value="Teste Finalizado">Teste Finalizado</option>
+          <option value="Compra Realizada">Compra Realizada (+ R$7,50)</option>
+        </select>
+        <button class="btn" onclick="addIndicacao()">Adicionar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Lista de Indicações / Vendas</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Revendedor</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-indicacoes">
+          <!-- Carregado via JS -->
+          <tr><td colspan="5" style="text-align: center; color: var(--muted);">A integração com o Google Sheets precisa ser configurada.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const WEBAPP_URL = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+
+    function loginAdmin() {
+      const u = document.getElementById('admin-user').value;
+      const p = document.getElementById('admin-pass').value;
+      
+      if(u === 'josias.santos' && p === 'Sabre0858') {
+        document.getElementById('login-admin').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        carregarDados();
+      } else {
+        alert("Acesso negado.");
+      }
+    }
+
+    function sairAdmin() {
+      document.getElementById('login-admin').style.display = 'block';
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('admin-user').value = '';
+      document.getElementById('admin-pass').value = '';
+    }
+
+    async function carregarDados() {
+      // Quando a planilha estiver pronta, essa função vai baixar as indicações.
+      try {
+        const res = await fetch(WEBAPP_URL + "?action=getAdminData");
+        // logica de popular tabela...
+      } catch(e) {
+        console.log("Aguardando configuração da API.");
+      }
+    }
+
+    async function addIndicacao() {
+      const revendedor = document.getElementById('add-revendedor').value;
+      const cliente = document.getElementById('add-cliente').value;
+      const status = document.getElementById('add-status').value;
+
+      if(!revendedor || !cliente) return alert("Preencha revendedor e cliente!");
+
+      try {
+        const res = await fetch(WEBAPP_URL + "?action=addIndicacao", {
+          method: "POST", body: JSON.stringify({ revendedor, cliente, status })
+        });
+        const data = await res.json();
+        alert(data.message);
+      } catch(e) {
+        alert("A integração com o Sheets não está ativa ainda.");
+      }
+    }
+  </script>
+</body>
+</html>
