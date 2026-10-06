@@ -221,15 +221,15 @@
       document.getElementById('auth-loading').style.display = 'none';
     }
 
-    async function fazerLogin(isAutoLogin = false) {
+    async function fazerLogin(isAutoLogin = false, silent = false) {
       const user = document.getElementById('login-user').value;
       const pass = document.getElementById('login-pass').value;
       if(!user || !pass) {
-        if(!isAutoLogin) alert("Preencha usuário e senha!");
+        if(!isAutoLogin && !silent) alert("Preencha usuário e senha!");
         return;
       }
 
-      document.getElementById('auth-loading').style.display = 'block';
+      if(!silent) document.getElementById('auth-loading').style.display = 'block';
 
       try {
         const res = await fetch(WEBAPP_URL + "?action=login", {
@@ -239,20 +239,28 @@
         if(data.success) {
           currentUser = data.userData;
           localStorage.setItem('iptv_rev_auth', JSON.stringify({ user, pass }));
-          abrirPainel();
+          abrirPainel(silent);
         } else {
-          if(!isAutoLogin) alert("Credenciais incorretas!");
-          else localStorage.removeItem('iptv_rev_auth');
+          if(!isAutoLogin && !silent) alert("Credenciais incorretas!");
+          if(isAutoLogin) localStorage.removeItem('iptv_rev_auth');
         }
       } catch (e) {
-        if(!isAutoLogin) alert("Erro de conexão com o servidor.");
+        if(!isAutoLogin && !silent) alert("Erro de conexão com o servidor.");
       }
-      document.getElementById('auth-loading').style.display = 'none';
+      if(!silent) document.getElementById('auth-loading').style.display = 'none';
     }
 
-    function abrirPainel() {
-      document.getElementById('auth-container').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
+    let refreshInterval;
+
+    function abrirPainel(silent = false) {
+      if(!silent) {
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        
+        // Iniciar atualização a cada 5s
+        if(refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => fazerLogin(true, true), 5000);
+      }
       
       document.getElementById('dash-nome').innerText = currentUser.nome;
       document.getElementById('dash-saldo').innerText = `R$ ${currentUser.saldo.toFixed(2).replace('.', ',')}`;
@@ -303,6 +311,7 @@
     }
 
     function sair() {
+      if(refreshInterval) clearInterval(refreshInterval);
       currentUser = null;
       localStorage.removeItem('iptv_rev_auth');
       document.getElementById('auth-container').style.display = 'block';

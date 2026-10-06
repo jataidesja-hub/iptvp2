@@ -75,6 +75,25 @@
     </div>
 
     <div class="card">
+      <h2>Saldos e Pagamentos</h2>
+      <p style="color:var(--muted); font-size:13px; margin-bottom: 15px;">Acompanhe o saldo dos revendedores e registre pagamentos.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Revendedor</th>
+            <th>Ganho Total</th>
+            <th>Já Pago</th>
+            <th>Saldo Atual</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-saldos">
+          <tr><td colspan="5" style="text-align: center; color: var(--muted);">Carregando saldos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
       <h2>Lista de Indicações / Vendas</h2>
       <table>
         <thead>
@@ -97,12 +116,15 @@
   <script>
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwASuWcODo_UcZ1LP4-j_l8B1ybrihSN9MOQQ1xo7oHPSgXdl2TbxNoNZeB5rd3h1zyQQ/exec";
 
+    let adminInterval;
+
     // AUTO-LOGIN ADMIN
     window.onload = function() {
       if (localStorage.getItem('iptv_admin_auth') === 'true') {
         document.getElementById('login-admin').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
         carregarDados();
+        adminInterval = setInterval(carregarDados, 5000);
       }
     };
 
@@ -115,12 +137,14 @@
         document.getElementById('login-admin').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
         carregarDados();
+        adminInterval = setInterval(carregarDados, 5000);
       } else {
         alert("Acesso negado.");
       }
     }
 
     function sairAdmin() {
+      if(adminInterval) clearInterval(adminInterval);
       localStorage.removeItem('iptv_admin_auth');
       document.getElementById('login-admin').style.display = 'block';
       document.getElementById('admin-panel').style.display = 'none';
@@ -133,11 +157,17 @@
         const res = await fetch(WEBAPP_URL + "?action=getAdminData", { method: "POST", body: "{}" });
         const data = await res.json();
         
+        // Renderiza Indicações
         const tbody = document.getElementById('tabela-indicacoes');
         tbody.innerHTML = '';
         
+        let ganhosPorRevendedor = {}; // { 'bruno.santos': 15.00 }
+        
         if(data.success && data.data.length > 0) {
           data.data.forEach(item => {
+            if(!ganhosPorRevendedor[item.revendedor]) ganhosPorRevendedor[item.revendedor] = 0;
+            if(item.status === 'Compra Realizada') ganhosPorRevendedor[item.revendedor] += 7.50;
+
             let statusClass = '';
             if(item.status === 'Em teste') statusClass = 'st-teste';
             else if(item.status === 'Teste Finalizado') statusClass = 'st-final';
@@ -154,7 +184,7 @@
                     <option value="Em teste" ${item.status === 'Em teste' ? 'selected' : ''}>Em teste</option>
                     <option value="Teste Finalizado" ${item.status === 'Teste Finalizado' ? 'selected' : ''}>Teste Finalizado</option>
                     <option value="Compra Realizada" ${item.status === 'Compra Realizada' ? 'selected' : ''}>Compra Realizada</option>
-                    <option value="Comissão Paga" ${item.status === 'Comissão Paga' ? 'selected' : ''}>Comissão Paga (Zerar Saldo)</option>
+                    <option value="Comissão Paga" ${item.status === 'Comissão Paga' ? 'selected' : ''}>Comissão Paga (Antigo)</option>
                   </select>
                 </td>
               </tr>
@@ -164,7 +194,42 @@
           tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--muted);">Nenhuma indicação ainda.</td></tr>';
         }
 
-        // Popular Revendedores
+        // Renderiza Saldos
+        const tbodySaldos = document.getElementById('tabela-saldos');
+        tbodySaldos.innerHTML = '';
+        
+        if(data.revendedores && data.revendedores.length > 0) {
+          data.revendedores.forEach(rev => {
+            const ganhoTotal = ganhosPorRevendedor[rev] || 0;
+            
+            // Soma pagamentos feitos a este revendedor
+            let totalPago = 0;
+            if(data.pagamentos) {
+              data.pagamentos.forEach(p => {
+                if(p.revendedor === rev) totalPago += p.valor;
+              });
+            }
+            
+            const saldoAtual = ganhoTotal - totalPago;
+            
+            tbodySaldos.innerHTML += `
+              <tr>
+                <td><strong>${rev}</strong></td>
+                <td style="color:var(--success)">R$ ${ganhoTotal.toFixed(2).replace('.',',')}</td>
+                <td style="color:var(--muted)">R$ ${totalPago.toFixed(2).replace('.',',')}</td>
+                <td style="font-weight:bold; color:${saldoAtual > 0 ? '#34d399' : 'var(--text)'}">R$ ${saldoAtual.toFixed(2).replace('.',',')}</td>
+                <td style="display:flex; gap:5px;">
+                  <input type="number" id="pagar-valor-${rev}" placeholder="0.00" step="0.01" style="width:80px; padding:6px; margin:0; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:white;" />
+                  <button class="btn" style="width:auto; padding:6px 12px; font-size:12px; background:var(--primary);" onclick="registrarPagamento('${rev}')">Pagar</button>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          tbodySaldos.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted);">Nenhum revendedor.</td></tr>';
+        }
+
+        // Popular Revendedores no Select
         const revSelect = document.getElementById('add-revendedor');
         if(data.revendedores && data.revendedores.length > 0) {
           revSelect.innerHTML = '<option value="">Selecione o Revendedor...</option>';
@@ -177,6 +242,28 @@
 
       } catch(e) {
         console.log("Aguardando configuração da API.", e);
+      }
+    }
+
+    async function registrarPagamento(revendedor) {
+      const valorStr = document.getElementById(`pagar-valor-${revendedor}`).value;
+      const valor = parseFloat(valorStr);
+      if(!valor || valor <= 0) return alert("Digite um valor válido para pagar.");
+      
+      try {
+        const res = await fetch(WEBAPP_URL + "?action=addPagamento", {
+          method: "POST", body: JSON.stringify({ revendedor, valor })
+        });
+        const data = await res.json();
+        if(data.success) {
+          alert("Pagamento registrado!");
+          document.getElementById(`pagar-valor-${revendedor}`).value = '';
+          carregarDados();
+        } else {
+          alert("Erro: " + data.message);
+        }
+      } catch(e) {
+        alert("Erro de conexão ao registrar pagamento.");
       }
     }
 
