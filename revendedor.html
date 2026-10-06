@@ -128,6 +128,28 @@
 
     let currentUser = null;
 
+    // Gerar usuário automaticamente baseado no Nome Completo
+    document.getElementById('reg-nome').addEventListener('input', function() {
+      const nomeFull = this.value.trim();
+      if (!nomeFull) {
+        document.getElementById('reg-user').value = '';
+        return;
+      }
+      
+      // Remove acentos
+      const nomeSemAcento = nomeFull.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const partes = nomeSemAcento.toLowerCase().split(/\s+/).filter(p => p.length > 0);
+      
+      let userGerado = '';
+      if (partes.length === 1) {
+        userGerado = partes[0];
+      } else if (partes.length > 1) {
+        userGerado = partes[0] + '.' + partes[partes.length - 1];
+      }
+      
+      document.getElementById('reg-user').value = userGerado;
+    });
+
     function toggleAuth() {
       const login = document.getElementById('login-form');
       const reg = document.getElementById('register-form');
