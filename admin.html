@@ -31,6 +31,7 @@
     .st-teste { background: rgba(99,102,241,0.2); color: #818cf8; }
     .st-final { background: rgba(245,158,11,0.2); color: #fbbf24; }
     .st-compra { background: rgba(16,185,129,0.2); color: #34d399; }
+    .st-paga { background: rgba(255,255,255,0.1); color: #94a3b8; }
     
     .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
     .add-form input, .add-form select, .add-form button { margin-bottom: 0; }
@@ -130,6 +131,7 @@
             if(item.status === 'Em teste') statusClass = 'st-teste';
             else if(item.status === 'Teste Finalizado') statusClass = 'st-final';
             else if(item.status === 'Compra Realizada') statusClass = 'st-compra';
+            else if(item.status === 'Comissão Paga') statusClass = 'st-paga';
 
             tbody.innerHTML += `
               <tr>
@@ -141,6 +143,7 @@
                     <option value="Em teste" ${item.status === 'Em teste' ? 'selected' : ''}>Em teste</option>
                     <option value="Teste Finalizado" ${item.status === 'Teste Finalizado' ? 'selected' : ''}>Teste Finalizado</option>
                     <option value="Compra Realizada" ${item.status === 'Compra Realizada' ? 'selected' : ''}>Compra Realizada</option>
+                    <option value="Comissão Paga" ${item.status === 'Comissão Paga' ? 'selected' : ''}>Comissão Paga (Zerar Saldo)</option>
                   </select>
                 </td>
               </tr>

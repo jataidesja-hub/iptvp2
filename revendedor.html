@@ -137,6 +137,7 @@
     .st-teste { background: rgba(99,102,241,0.2); color: #818cf8; }
     .st-final { background: rgba(245,158,11,0.2); color: #fbbf24; }
     .st-compra { background: rgba(16,185,129,0.2); color: #34d399; }
+    .st-paga { background: rgba(255,255,255,0.1); color: #94a3b8; }
   </style>
 
   <script>
@@ -168,6 +169,17 @@
       document.getElementById('reg-user').value = userGerado;
     });
 
+    // AUTO-LOGIN
+    window.onload = function() {
+      const savedAuth = localStorage.getItem('iptv_rev_auth');
+      if (savedAuth) {
+        const authData = JSON.parse(savedAuth);
+        document.getElementById('login-user').value = authData.user;
+        document.getElementById('login-pass').value = authData.pass;
+        fazerLogin(true); // tenta logar silenciosamente
+      }
+    };
+
     function toggleAuth() {
       const login = document.getElementById('login-form');
       const reg = document.getElementById('register-form');
@@ -190,7 +202,7 @@
       
       document.getElementById('auth-loading').style.display = 'block';
       
-      // Chamada para o Google Sheets (ainda vamos configurar)
+      // Chamada para o Google Sheets
       try {
         const res = await fetch(WEBAPP_URL + "?action=register", {
           method: "POST",
@@ -204,15 +216,18 @@
           alert("Erro: " + data.message);
         }
       } catch (e) {
-        alert("A integração com a planilha ainda precisa ser configurada!");
+        alert("Erro de conexão ao cadastrar.");
       }
       document.getElementById('auth-loading').style.display = 'none';
     }
 
-    async function fazerLogin() {
+    async function fazerLogin(isAutoLogin = false) {
       const user = document.getElementById('login-user').value;
       const pass = document.getElementById('login-pass').value;
-      if(!user || !pass) return alert("Preencha usuário e senha!");
+      if(!user || !pass) {
+        if(!isAutoLogin) alert("Preencha usuário e senha!");
+        return;
+      }
 
       document.getElementById('auth-loading').style.display = 'block';
 
@@ -223,15 +238,14 @@
         const data = await res.json();
         if(data.success) {
           currentUser = data.userData;
+          localStorage.setItem('iptv_rev_auth', JSON.stringify({ user, pass }));
           abrirPainel();
         } else {
-          alert("Credenciais incorretas!");
+          if(!isAutoLogin) alert("Credenciais incorretas!");
+          else localStorage.removeItem('iptv_rev_auth');
         }
       } catch (e) {
-        alert("A integração com a planilha ainda precisa ser configurada!");
-        // MOCK PARA TESTE VISUAL ENQUANTO NÃO TEM PLANILHA:
-        currentUser = { nome: "Teste", user: user, saldo: 15.00, pix: "1234" };
-        abrirPainel();
+        if(!isAutoLogin) alert("Erro de conexão com o servidor.");
       }
       document.getElementById('auth-loading').style.display = 'none';
     }
@@ -255,6 +269,7 @@
           if(ind.status === 'Em teste') stClass = 'st-teste';
           else if(ind.status === 'Teste Finalizado') stClass = 'st-final';
           else if(ind.status === 'Compra Realizada') stClass = 'st-compra';
+          else if(ind.status === 'Comissão Paga') stClass = 'st-paga';
           
           boxInd.innerHTML += `
             <div class="ind-item">
@@ -289,8 +304,11 @@
 
     function sair() {
       currentUser = null;
+      localStorage.removeItem('iptv_rev_auth');
       document.getElementById('auth-container').style.display = 'block';
       document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
     }
   </script>
 </body>
