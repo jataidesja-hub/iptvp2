@@ -556,6 +556,39 @@
               </div>
 
             </div>
+            
+            <!-- Marcas Smart TV (Escondido por padrão) -->
+            <div class="brands-section" id="brands-section" style="display: none; margin-top: 16px;">
+              <label>Qual a marca da sua Smart TV?</label>
+              <div class="device-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="device-option">
+                  <input type="radio" name="tv_brand" id="brand-samsung" value="SAMSUNG" />
+                  <label class="device-label" for="brand-samsung" style="padding: 10px;">
+                    <span class="device-name">SAMSUNG</span>
+                  </label>
+                </div>
+                <div class="device-option">
+                  <input type="radio" name="tv_brand" id="brand-lg" value="LG" />
+                  <label class="device-label" for="brand-lg" style="padding: 10px;">
+                    <span class="device-name">LG</span>
+                  </label>
+                </div>
+                <div class="device-option">
+                  <input type="radio" name="tv_brand" id="brand-philco" value="PHILCO" />
+                  <label class="device-label" for="brand-philco" style="padding: 10px;">
+                    <span class="device-name">PHILCO</span>
+                  </label>
+                </div>
+                <div class="device-option">
+                  <input type="radio" name="tv_brand" id="brand-outros" value="OUTROS" />
+                  <label class="device-label" for="brand-outros" style="padding: 10px;">
+                    <span class="device-name">OUTROS</span>
+                  </label>
+                </div>
+              </div>
+              <span class="device-error" id="brand-error">Selecione a marca da TV.</span>
+            </div>
+
             <span class="device-error" id="device-error">Selecione o tipo de aparelho.</span>
           </div>
 
@@ -578,6 +611,26 @@
 
   <script>
     const WHATSAPP_NUMBER = '5574981165246';
+
+    // Capturar indicação da URL (?ref=nome_usuario)
+    const urlParams = new URLSearchParams(window.location.search);
+    const revendedorRef = urlParams.get('ref');
+
+    // Toggle Brands Section
+    const deviceRadios = document.querySelectorAll('input[name="device"]');
+    const brandsSection = document.getElementById('brands-section');
+    
+    deviceRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        if (this.value === 'Smart TV') {
+          brandsSection.style.display = 'block';
+        } else {
+          brandsSection.style.display = 'none';
+          document.querySelectorAll('input[name="tv_brand"]').forEach(b => b.checked = false);
+          document.getElementById('brand-error').classList.remove('show');
+        }
+      });
+    });
 
     // Mask phone input
     const phoneInput = document.getElementById('whatsapp');
@@ -624,6 +677,16 @@
         valid = false;
       } else {
         deviceError.classList.remove('show');
+        if (device.value === 'Smart TV') {
+          const brand = document.querySelector('input[name="tv_brand"]:checked');
+          const brandError = document.getElementById('brand-error');
+          if (!brand) {
+            brandError.classList.add('show');
+            valid = false;
+          } else {
+            brandError.classList.remove('show');
+          }
+        }
       }
 
       return valid;
@@ -645,22 +708,41 @@
         'PC':       'https://p2playerweb.com',
       };
 
-      const storeSearchDevices = ['Smart TV', 'TV Box'];
       const waitDevices = ['Outro'];
 
       let extraLines = [];
-      if (deviceLinks[device]) {
+      let aparelhoDisplay = device;
+
+      if (device === 'Smart TV') {
+        const brand = document.querySelector('input[name="tv_brand"]:checked').value;
+        aparelhoDisplay = `${device} (${brand})`;
+        if (brand === 'SAMSUNG') {
+          extraLines = [
+            ``,
+            `📲 *Pesquise e baixe na sua loja KAYROS PLAYER*`,
+            ``,
+            `Assim que instalar, me avise aqui para eu enviar o acesso! 😊`
+          ];
+        } else {
+          extraLines = [
+            ``,
+            `📲 *Pesquise e baixe na sua loja ZUXO PLAYER*`,
+            ``,
+            `Assim que instalar, me avise aqui para eu enviar o acesso! 😊`
+          ];
+        }
+      } else if (device === 'TV Box') {
+        extraLines = [
+          ``,
+          `📲 *Pesquise e baixe na sua loja ZUXO PLAYER*`,
+          ``,
+          `Assim que instalar, me avise aqui para eu enviar o acesso! 😊`
+        ];
+      } else if (deviceLinks[device]) {
         extraLines = [
           ``,
           `📲 *Instale o app pelo link abaixo e me avise quando estiver pronto:*`,
           `👉 ${deviceLinks[device]}`,
-          ``,
-          `Assim que instalar, me avise aqui para eu enviar o acesso! 😊`
-        ];
-      } else if (storeSearchDevices.includes(device)) {
-        extraLines = [
-          ``,
-          `📲 *Pesquise e baixe na sua loja ZUXO PLAYER*`,
           ``,
           `Assim que instalar, me avise aqui para eu enviar o acesso! 😊`
         ];
@@ -670,14 +752,23 @@
           `⏳ Aguarde, em breve entrarei em contato com as instruções para o seu aparelho.`
         ];
       }
+      
+      let refLine = [];
+      if (revendedorRef) {
+        refLine = [
+          ``,
+          `🏷️ *Indicado por:* ${revendedorRef}`
+        ];
+      }
 
       const msg = [
         `Olá! Gostaria de solicitar um *teste de IPTV*.`,
         ``,
         `👤 *Nome:* ${nome}`,
         `📱 *WhatsApp:* +55 ${document.getElementById('whatsapp').value.trim()}`,
-        `📺 *Aparelho:* ${device}`,
-        ...extraLines
+        `📺 *Aparelho:* ${aparelhoDisplay}`,
+        ...extraLines,
+        ...refLine
       ].join('\n');
 
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
@@ -694,6 +785,7 @@
     document.getElementById('nome').addEventListener('input', () => document.getElementById('group-nome').classList.remove('has-error'));
     phoneInput.addEventListener('input', () => document.getElementById('group-whats').classList.remove('has-error'));
     document.querySelectorAll('input[name="device"]').forEach(r => r.addEventListener('change', () => document.getElementById('device-error').classList.remove('show')));
+    document.querySelectorAll('input[name="tv_brand"]').forEach(r => r.addEventListener('change', () => document.getElementById('brand-error').classList.remove('show')));
   </script>
 </body>
 </html>
