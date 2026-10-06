@@ -225,7 +225,8 @@
       document.getElementById('dash-nome').innerText = currentUser.nome;
       document.getElementById('dash-saldo').innerText = `R$ ${currentUser.saldo.toFixed(2).replace('.', ',')}`;
       
-      const link = `${window.location.origin}${window.location.pathname.replace('revendedor.html', 'index.html')}?ref=${currentUser.user}`;
+      // O link de indicação deve mandar para a página inicial (raiz do site)
+      const link = `${window.location.origin}/?ref=${currentUser.user}`;
       document.getElementById('dash-link').innerText = link;
     }
 
