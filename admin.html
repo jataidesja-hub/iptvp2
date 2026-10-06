@@ -97,11 +97,21 @@
   <script>
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwASuWcODo_UcZ1LP4-j_l8B1ybrihSN9MOQQ1xo7oHPSgXdl2TbxNoNZeB5rd3h1zyQQ/exec";
 
+    // AUTO-LOGIN ADMIN
+    window.onload = function() {
+      if (localStorage.getItem('iptv_admin_auth') === 'true') {
+        document.getElementById('login-admin').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        carregarDados();
+      }
+    };
+
     function loginAdmin() {
       const u = document.getElementById('admin-user').value;
       const p = document.getElementById('admin-pass').value;
       
       if(u === 'josias.santos' && p === 'Sabre0858') {
+        localStorage.setItem('iptv_admin_auth', 'true');
         document.getElementById('login-admin').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
         carregarDados();
@@ -111,6 +121,7 @@
     }
 
     function sairAdmin() {
+      localStorage.removeItem('iptv_admin_auth');
       document.getElementById('login-admin').style.display = 'block';
       document.getElementById('admin-panel').style.display = 'none';
       document.getElementById('admin-user').value = '';
